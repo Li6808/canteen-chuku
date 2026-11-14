@@ -418,6 +418,7 @@ function iso(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate
 function wdOf(s){var p=s.split('-');var d=new Date(+p[0],+p[1]-1,+p[2]);return (d.getDay()+6)%7;}
 function num(v){var n=parseFloat(v);return isFinite(n)?n:0;}
 function r2(v){return Math.round(v*100)/100;}
+function amtOf(o){return r2(o.q*o.p);}
 function fmt(v,d){if(d===undefined)d=1;var x=Number(v)||0;return x.toFixed(d).replace(/\.0+$/,'');}
 function yen(v){return (Number(v)||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
 
@@ -622,8 +623,8 @@ function dailyAvg(n){
 }
 function totals(){
   var inAmt=0,nut=0,eve=0;
-  S.inLog.forEach(function(o){inAmt+=o.q*o.p;});
-  S.outLog.forEach(function(o){var a=o.q*o.p;if(o.t==='午')nut+=a;else eve+=a;});
+  S.inLog.forEach(function(o){inAmt+=amtOf(o);});
+  S.outLog.forEach(function(o){var a=amtOf(o);if(o.t==='午')nut+=a;else eve+=a;});
   var sa=0;
   ORDER.forEach(function(n){sa+=stockOf(n)*priceOf(n);});
   return {inAmt:inAmt,nut:nut,eve:eve,outAmt:nut+eve,stockAmt:sa};
@@ -1649,8 +1650,8 @@ function oneOffCard(){
 function oneStats(){
   var inAmt=0,outAmt=0;
   (S.oneLog||[]).forEach(function(o){
-    if(o.dir==='in')inAmt+=o.q*o.p;
-    else outAmt+=o.q*o.p;
+    if(o.dir==='in')inAmt+=amtOf(o);
+    else outAmt+=amtOf(o);
   });
   return {inAmt:inAmt,outAmt:outAmt};
 }
@@ -1697,7 +1698,7 @@ function coverData(){
     if(g!==coverG)return;
     var k=rollName(o.n);
     agg[k]=(agg[k]||0)+o.q*o.p;
-    total+=o.q*o.p;
+    total+=amtOf(o);
   });
   var rows=Object.keys(agg).map(function(k){return {n:k,a:agg[k]};});
   rows.sort(function(x,y){return y.a-x.a;});
@@ -1760,7 +1761,7 @@ function ledgerSheet(){
   ['日期','名称','单位','数量','单价','金额'].forEach(function(h){hr.appendChild(el('th','',h));});
   tb.appendChild(hr);
   rows.forEach(function(o){
-    total+=o.q*o.p;
+    total+=amtOf(o);
     var tr=el('tr');
     tr.appendChild(el('td','',o.d.slice(5)));
     tr.appendChild(el('td','',o.n));
@@ -1943,8 +1944,8 @@ function renderMonth(){
       var ia=0,nu=0,ev=0,has=false;
       ORDER.forEach(function(n){
         if(catOf(n)!==c)return;
-        S.inLog.forEach(function(o){if(o.n===n){ia+=o.q*o.p;has=true;}});
-        S.outLog.forEach(function(o){if(o.n===n){has=true;if(o.t==='午')nu+=o.q*o.p;else ev+=o.q*o.p;}});
+        S.inLog.forEach(function(o){if(o.n===n){ia+=amtOf(o);has=true;}});
+        S.outLog.forEach(function(o){if(o.n===n){has=true;if(o.t==='午')nu+=amtOf(o);else ev+=amtOf(o);}});
       });
       if(!has)return;
       var tr=el('tr');
@@ -2029,6 +2030,23 @@ function renderMonth(){
   };
   c6.appendChild(fIn);
   f.appendChild(c6);
+
+  var cb=el('div','card');
+  cb.appendChild(el('div','h')).appendChild(el('b','','备份 / 恢复'));
+  cb.appendChild(el('div','muted','换手机、清缓存、重装之前，先导出备份；回来时导入就能接上，数据一条不丢。'));
+  var bx1=el('button','btn main','导出备份（.json 文件）');
+  bx1.style.marginTop='10px';
+  bx1.onclick=function(){backupExport();};
+  cb.appendChild(bx1);
+  var bx2=el('button','btn ghost','导入备份（选 .json 文件）');
+  bx2.style.marginTop='8px';
+  var fi=el('input','');
+  fi.type='file';fi.accept='.json,application/json';fi.style.display='none';
+  fi.onchange=function(){backupImport(fi);};
+  bx2.onclick=function(){fi.click();};
+  cb.appendChild(bx2);
+  cb.appendChild(fi);
+  f.appendChild(cb);
 
   var c5=el('div','card');
   var b4=el('button','btn warn','清空记录，恢复 11 月数据');
@@ -2157,6 +2175,42 @@ function applyImport(wb){
   });
   rebuildItems();recompute();save();render();
   toast('已导入：出库 '+outs.length+' 行 / 入库 '+ins.length+' 行');
+}
+
+/* ---------------- 备份 / 恢复 ---------------- */
+function backupExport(){
+  var payload={app:'canteen-backup',v:1,savedAt:new Date().toISOString(),data:S};
+  var blob=new Blob([JSON.stringify(payload)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='食堂出库备份_'+iso(new Date())+'.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+  toast('已导出备份文件');
+}
+function backupImport(input){
+  var f=input.files&&input.files[0];
+  if(!f)return;
+  var fr=new FileReader();
+  fr.onload=function(){
+    var d=null;
+    try{
+      var o=JSON.parse(String(fr.result));
+      d=o&&o.data?o.data:o;
+    }catch(e){alert('文件读不出来，可能不是备份文件');return;}
+    if(!d||!d.stock||!d.menu){alert('这不是本 App 的备份文件');return;}
+    if(!confirm('导入会覆盖手机上现在的全部数据，确定吗？'))return;
+    S=d;
+    if(!S.oneLog)S.oneLog=[];
+    if(!S.inLog)S.inLog=[];
+    if(!S.outLog)S.outLog=[];
+    if(!S.opening)S.opening={};
+    if(!S.price)S.price={};
+    rebuildItems();recompute();save();render();
+    toast('备份已恢复');
+  };
+  fr.readAsText(f);
+  input.value='';
 }
 
 
