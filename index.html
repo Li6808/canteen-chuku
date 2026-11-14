@@ -2637,7 +2637,7 @@ function auditCard(){
 /* ---------------- 版本与更新说明 ---------------- */
 var APP_VER='1.1.1';
 var APP_VER_DATE='2026-11-15 03:25';
-var APP_BUILD='2026-11-15 03:21';
+var APP_BUILD='2026-11-15 03:24';
 var VERSIONS=[
  {v:'1.1.1',d:'2026-11-15 03:22',t:'修正',items:[
    '日历表头与日期列对齐：表头日期同一列宽，列间距统一 4px',
@@ -3187,9 +3187,71 @@ function exportSheets(){
   set.push(['合计','',r2(T[0]),r2(T[1]),r2(T[2]),r2(T[3]),r2(T[4]),r2(T[4]+T[0]-T[1]-T[2])]);
   var arch=[['序号','品名','分类','单位','备注']];
   ORDER.forEach(function(n,i){arch.push([i+1,n,catOf(n),unitOf(n),'']);});
+
+  // 按食材结算
+  var byItem=[['品名','分类','单位','营养数量','营养金额','早晚数量','早晚金额','出库合计']];
+  var iTot=[0,0,0,0,0];
+  ORDER.forEach(function(n){
+    var q1=0,a1=0,q2=0,a2=0;
+    S.outLog.forEach(function(o){
+      if(o.n!==n)return;
+      if(o.t==='午'){q1+=o.q;a1+=o.q*o.p;}else{q2+=o.q;a2+=o.q*o.p;}
+    });
+    if(!q1&&!q2&&!a1&&!a2)return;
+    byItem.push([n,catOf(n),unitOf(n),r2(q1),r2(a1),r2(q2),r2(a2),r2(a1+a2)]);
+    iTot[0]+=q1;iTot[1]+=a1;iTot[2]+=q2;iTot[3]+=a2;iTot[4]+=a1+a2;
+  });
+  byItem.push(['合计','','',r2(iTot[0]),r2(iTot[1]),r2(iTot[2]),r2(iTot[3]),r2(iTot[4])]);
+
+  // 收发存汇总
+  var sfs=[['品名','分类','单位','期初数量','本月入库','本月出库','期末数量']];
+  var sfT=[0,0,0,0];
+  ORDER.forEach(function(n){
+    var opq=num(S.opening&&S.opening[n]);
+    var iq=0;S.inLog.forEach(function(o){if(o.n===n)iq+=o.q;});
+    var oq=0;S.outLog.forEach(function(o){if(o.n===n)oq+=o.q;});
+    if(!opq&&!iq&&!oq)return;
+    sfs.push([n,catOf(n),unitOf(n),r2(opq),r2(iq),r2(oq),r2(opq+iq-oq)]);
+    sfT[0]+=opq;sfT[1]+=iq;sfT[2]+=oq;sfT[3]+=opq+iq-oq;
+  });
+  sfs.push(['合计','','',r2(sfT[0]),r2(sfT[1]),r2(sfT[2]),r2(sfT[3])]);
+
+  // 月末盘点
+  var pd=[['序号','品名','分类','单位','账面数量','实盘数量','差异','备注']];
+  ORDER.forEach(function(n,i){
+    var st=stockOf(n);
+    pd.push([i+1,n,catOf(n),unitOf(n),r2(st),'','',' ']);
+  });
+
+
+  // 使用说明
+  var help=[['使用说明']];
+  [['一','录数据','在 App 里借「今日」出库、「入库」入货、「一次性」记临时采购，系统自动算库存和金额。'],
+   ['二','改数据','「档案」里改分类、单位、单价，全表跟着变；改错了点顶部「↶ 撤销」。'],
+   ['三','做账','每月底到「结算」，先看「账目体检」是否全部正常，再导出本表。'],
+   ['四','对账','「收发存汇总」期末为负，说明有入库没录；按「月末盘点」实地数一遍填实盘数。'],
+   ['五','备份','结算页「导出备份」存 .json；手机电脑共用一个云端，换机自动同步。'],
+   ['六','打印','单据封面、出库单可从 App 直接出图，长按保存到相册再打印。']
+  ].forEach(function(r){help.push(r);});
+  help.push(['','数据源：'+S.school+'　月份：'+(S.month||'')]);
+
+  // 参数设置
+  var par=[['参数','取值']];
+  par.push(['学校名称',S.school||'']);
+  par.push(['记账号月份',S.month||'']);
+  par.push(['记账单位','斤（公斤录入自动×2）']);
+  par.push(['分类',CATS.join('、')]);
+  par.push(['单位','斤、公斤、桶、袋、瓶、件、包、个、批']);
+  par.push(['出库餐次','午（营养午餐）/ 早、晚（早晚餐）']);
+
+  // 下拉辅助
+  var dd=[['序号','品名','分类','单位']];
+  ORDER.forEach(function(n,i){dd.push([i+1,n,catOf(n),unitOf(n)]);});
   return [{name:'每日出库',rows:out},{name:'一次性出库',rows:one},
           {name:'本月入库',rows:inb},{name:'上月结余',rows:op},
-          {name:'月度结算',rows:set},{name:'食材档案',rows:arch}];
+          {name:'月度结算',rows:set},{name:'食材档案',rows:arch},
+          {name:'使用说明',rows:help},{name:'参数设置',rows:par},{name:'下拉辅助',rows:dd},
+          {name:'⑨ 收发存汇总',rows:sfs},{name:'⑩ 月末盘点',rows:pd},{name:'⑬ 按食材结算',rows:byItem}];
 }
 function downloadXlsx(){
   var buf=makeXlsx(exportSheets());
