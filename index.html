@@ -2459,20 +2459,41 @@ function auditIssues(){
   });
   return out;
 }
+var AUDIT_OPEN=false;
 function auditCard(){
   var list=auditIssues();
   var errs=list.filter(function(x){return x.lv==='err';}).length;
+  var neg=0,dup=0,zero=0,oth=0;
+  list.forEach(function(x){
+    if(x.t.indexOf('结存为负')>=0)neg++;
+    else if(x.t.indexOf('重复')>=0)dup++;
+    else if(x.t.indexOf('单价是 0')>=0)zero++;
+    else oth++;
+  });
   var c=el('div','card');
   var h=el('div','h');
   h.appendChild(el('b','','账目体检'));
-  h.appendChild(el('span','tag'+(errs?' warn':''),list.length?(errs?errs+' 处错误 / ':'')+list.length+' 项待查':'全部正常'));
+  h.appendChild(el('span','tag'+(errs?' warn':''),list.length?(list.length+' 项待查'):'全部正常'));
+  var tog=el('button','mini',AUDIT_OPEN?'收起':'展开');
+  tog.style.marginLeft='auto';
+  tog.onclick=function(){AUDIT_OPEN=!AUDIT_OPEN;render();};
+  h.appendChild(tog);
   c.appendChild(h);
   if(!list.length){
     c.appendChild(el('div','muted','结存、单价、日期、重复、一次性配对都没发现问题。'));
     return c;
   }
+  if(!AUDIT_OPEN){
+    var parts=[];
+    if(neg)parts.push('结存为负 '+neg);
+    if(dup)parts.push('重复出库 '+dup);
+    if(zero)parts.push('单价为 0 '+zero);
+    if(oth)parts.push('其他 '+oth);
+    c.appendChild(el('div','muted','点「展开」查看明细 · '+parts.join(' · ')));
+    return c;
+  }
   c.appendChild(el('div','muted','下面这些地方数据对不上，点右边的字直接去改。'));
-  list.slice(0,20).forEach(function(x){
+  list.slice(0,30).forEach(function(x){
     var row=el('div','row');
     var nm=el('div','nm');
     var b=el('b','',x.t);
@@ -2480,17 +2501,17 @@ function auditCard(){
     nm.appendChild(b);
     nm.appendChild(el('small','',x.d));
     row.appendChild(nm);
-    var go=el('button','mini',x.go==='stock'?'去库存':(x.go==='archive'?'去档案':(x.go==='today'?'去今日':'去结算')));
-    go.onclick=function(){setTab(x.go==='month'?'month':x.go);};
-    row.appendChild(go);
+    var gol=el('button','mini',x.go==='stock'?'去库存':(x.go==='archive'?'去档案':(x.go==='today'?'去今日':'去结算')));
+    gol.onclick=function(){go(x.go||'today');};
+    row.appendChild(gol);
     c.appendChild(row);
   });
-  if(list.length>20)c.appendChild(el('div','muted','还有 '+(list.length-20)+' 项，先修上面这些再看。'));
+  if(list.length>30)c.appendChild(el('div','muted','还有 '+(list.length-30)+' 项，先修上面这些再看。'));
   return c;
 }
+
 function renderMonth(){
   var f=document.createDocumentFragment();
-  f.appendChild(auditCard());
   f.appendChild(historyCard());
   var t=totals(),os=oneStats();
   var seg=el('div','seg');
@@ -2681,6 +2702,7 @@ function renderMonth(){
   };
   c5.appendChild(b4);
   f.appendChild(c5);
+  f.appendChild(auditCard());
   return f;
 }
 
