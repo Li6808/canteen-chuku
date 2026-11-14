@@ -385,6 +385,27 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:60}
   nav{position:fixed;left:0;top:0;bottom:0;right:auto;width:212px}
 }
 
+/* 日历紧凑 */
+@media (max-width:999px){
+  .calcell{height:30px;font-size:13px}
+  .calgrid{gap:1px}
+  .sec-cal{padding:12px 10px 10px}
+  .cvtitle{font-size:15.5px;margin-bottom:4px}
+}
+@media (min-width:1000px){
+  .calcell{height:32px}
+}
+
+/* 日历：表头与日期同宽、间距统一 */
+.calgrid{grid-template-columns:repeat(7,1fr);column-gap:4px;row-gap:2px}
+.calwd{font-size:11.5px;letter-spacing:1px;color:#9aa7a0;padding:2px 0 6px;text-align:center}
+.calcell{width:100%;height:31px;border-radius:9px;font-size:13.5px}
+.sec-cal{padding:14px 12px 10px}
+@media (min-width:1000px){
+  .calgrid{column-gap:6px}
+  .calcell{height:34px}
+}
+
 /* ===== 新版：两栏工作台，极简风格 ===== */
 .layout2{display:block}
 @media (min-width: 1000px){
@@ -2070,11 +2091,17 @@ function cnMoney(n){
   else if(yuan>0)s+='整';
   return s;
 }
-var BLOCKS=[['粮食类','粮食'],['肉禽蛋类','肉禽蛋'],['蔬菜瓜果类','蔬菜|瓜果'],['油盐辅料干货','油盐|干鲜']];
+var BLOCKS=[
+  ['粮食类',function(n){return catOf(n)==='粮食';}],
+  ['食用油',function(n){return n==='菜油'||n==='香油'||n==='花生油'||n==='调和油';}],
+  ['肉禽蛋类',function(n){return catOf(n)==='肉禽蛋';}],
+  ['蔬菜瓜果类',function(n){var c=catOf(n);return c==='蔬菜'||c==='瓜果';}],
+  ['油盐辅料干货',function(n){var c=catOf(n);return (c==='油盐'&&n!=='菜油'&&n!=='香油'&&n!=='花生油'&&n!=='调和油')||c==='干鲜';}]
+];
 function slipURL(meal,rows,pgStr){
   var groups=BLOCKS.map(function(b){
-    var cats=b[1].split('|');
-    var list=rows.filter(function(o){return cats.indexOf(catOf(o.n))>=0;});
+    var fn=b[1];
+    var list=rows.filter(function(o){return fn(o.n);});
     var sum=0;list.forEach(function(o){sum+=o.q*o.p;});
     return {name:b[0],list:list,sum:sum};
   });
@@ -2083,7 +2110,7 @@ function slipURL(meal,rows,pgStr){
   var bodyH=0;
   groups.forEach(function(g){
     if(!g.list.length)return;
-    bodyH+=30+30+g.list.length*30+30;
+    bodyH+=26+26+g.list.length*27+24;
   });
   var H=headH+bodyH+footH;
   var sc=2;
@@ -2096,9 +2123,9 @@ function slipURL(meal,rows,pgStr){
 
   var F=' -apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
   g.textAlign='center';g.fillStyle='#111a16';
-  g.font='700 21px'+F;
+  g.font='700 23px'+F;
   g.fillText(S.school+' 食堂出库单',W/2,52);
-  g.font='400 12.5px'+F;g.fillStyle='#5c6b64';
+  g.font='500 13px'+F;g.fillStyle='#5c6b64';
   g.fillText(viewDate+'　'+DAYC[wdOf(viewDate)]+'　'+(meal==='午'?'营养午餐':(isWeekend(wdOf(viewDate))?'早、中、晚':'早、晚餐'))+(pgStr?'　'+pgStr:''),W/2,74);
   g.textAlign='right';g.font='400 11.5px'+F;
   g.fillText('编号：'+viewDate.replace(/-/g,'')+'-'+(meal==='午'?'W':'Z')+'-01',W-pad,74);
@@ -2107,35 +2134,35 @@ function slipURL(meal,rows,pgStr){
   var cols=[[x0+10,'left','序号'],[x0+56,'left','品名'],[x0+300,'left','单位'],
             [x0+398,'right','数量'],[x0+500,'right','单价'],[x1-10,'right','金额']];
   g.fillStyle='#1a7f63';g.fillRect(x0,88,x1-x0,26);
-  g.fillStyle='#fff';g.font='600 12.5px'+F;
+  g.fillStyle='#fff';g.font='700 13.5px'+F;
   cols.forEach(function(cl){g.textAlign=cl[1];g.fillText(cl[2],cl[0],105);});
 
   var y=114,seq=0,grand=0;
   groups.forEach(function(grp){
     if(!grp.list.length)return;
-    g.fillStyle='#eef4f1';g.fillRect(x0,y,x1-x0,26);
-    g.fillStyle='#12402f';g.font='700 12.5px'+F;g.textAlign='left';
-    g.fillText(grp.name,x0+10,y+18);
-    y+=26;
+    g.fillStyle='#eef4f1';g.fillRect(x0,y,x1-x0,24);
+    g.fillStyle='#12402f';g.font='700 13px'+F;g.textAlign='left';
+    g.fillText(grp.name,x0+10,y+17);
+    y+=24;
     grp.list.forEach(function(o){
       seq++;
       if(seq%2===0){g.fillStyle='#fafcfb';g.fillRect(x0,y,x1-x0,30);}
       g.fillStyle='#111a16';g.font='400 12.5px'+F;
-      g.textAlign='left';g.fillText(String(seq),x0+10,y+20);
-      g.font='500 12.5px'+F;g.fillText(o.n,x0+56,y+20);
-      g.font='400 12px'+F;g.fillStyle='#5c6b64';g.fillText(unitOf(o.n),x0+300,y+20);
+      g.textAlign='left';g.fillText(String(seq),x0+10,y+19);
+      g.font='600 14px'+F;g.fillText(o.n,x0+56,y+19);
+      g.font='400 12.5px'+F;g.fillStyle='#5c6b64';g.fillText(unitOf(o.n),x0+300,y+19);
       g.fillStyle='#111a16';
-      g.textAlign='right';g.fillText(fmt(o.q),x0+398,y+20);
-      g.fillText(fmt(o.p,2),x0+500,y+20);
-      g.font='600 12.5px'+F;g.fillText(yen(o.q*o.p),x1-10,y+20);
-      y+=30;
+      g.textAlign='right';g.fillText(fmt(o.q),x0+398,y+19);
+      g.fillText(fmt(o.p,2),x0+500,y+19);
+      g.font='700 13.5px'+F;g.fillText(yen(o.q*o.p),x1-10,y+20);
+      y+=27;
     });
     grand+=grp.sum;
-    g.fillStyle='#fff';g.fillRect(x0,y,x1-x0,26);
+    g.fillStyle='#fff';g.fillRect(x0,y,x1-x0,24);
     g.fillStyle='#5c6b64';g.font='400 12px'+F;g.textAlign='right';
-    g.fillText('本类小计　¥'+yen(grp.sum),x1-10,y+18);
-    g.strokeStyle='#e8ecea';g.beginPath();g.moveTo(x0,y+26);g.lineTo(x1,y+26);g.stroke();
-    y+=30;
+    g.fillText('本类小计　¥'+yen(grp.sum),x1-10,y+17);
+    g.strokeStyle='#e8ecea';g.beginPath();g.moveTo(x0,y+24);g.lineTo(x1,y+24);g.stroke();
+    y+=24;
   });
 
   g.fillStyle='#e7f3ee';g.fillRect(x0,y,x1-x0,46);
@@ -2608,9 +2635,25 @@ function auditCard(){
 
 
 /* ---------------- 版本与更新说明 ---------------- */
-var APP_VER='1.0.0';
-var APP_VER_DATE='2026-11-15';
+var APP_VER='1.1.1';
+var APP_VER_DATE='2026-11-15 03:25';
+var APP_BUILD='2026-11-15 03:21';
 var VERSIONS=[
+ {v:'1.1.1',d:'2026-11-15 03:22',t:'修正',items:[
+   '日历表头与日期列对齐：表头日期同一列宽，列间距统一 4px',
+   '日历格子 30→31px，圆角 9px；电脑端 34px、间距 6px',
+   '结算页改为「更多工具」折叠：Excel 导出、导入、备份、体检、版本说明收起',
+   'Excel 新增「⑬ 按食材结算」页：39 种食材，营养/早晚分列，附合计'
+ ]},
+ {v:'1.1.0',d:'2026-11-15 03:25',t:'更新',items:[
+   '底部导航固定：不再跟着页面滚走，随时可切换',
+   '今日未出库提醒：营养午餐 / 早晚餐没出库时顶部红条提示',
+   '结算新增「按食材」维度：每样食材单独汇总数量金额，可复制成表',
+   '日历紧凑：格子 38→30px，间距收紧，整体高度约减三成',
+   '出库单改版：字号放大、行距收紧；食用油单列一块，紧跟粮食类之后',
+   '顶栏重做：数据胶囊变小、同步状态改小字、撤销改圆形按钮、版本号移入结算页',
+   '版本号与更新时间写进结算页「版本与更新说明」'
+ ]},
  {v:'1.0.0',d:'2026-11-15',t:'正式版',items:[
    '界面重做：手机单栏、电脑左侧导航 + 两栏工作台，暖色纸感风格',
    '云同步：接入 Supabase，手机电脑自动共用一份数据',
@@ -2643,7 +2686,9 @@ function versionCard(){
   h2.appendChild(tg);
   c.appendChild(h2);
   var latest=VERSIONS[0];
-  c.appendChild(el('div','muted','当前版本 v'+APP_VER+'（'+APP_VER_DATE+'）· 共 '+latest.items.length+' 项更新'));
+  var _bt=(typeof APP_BUILD!=='undefined'&&APP_BUILD&&APP_BUILD.indexOf('__')<0)?APP_BUILD:APP_VER_DATE;
+  c.appendChild(el('div','muted','当前版本 v'+APP_VER+'　·　更新时间 '+_bt+'　·　本版 '+latest.items.length+' 项改动'));
+  c.appendChild(el('div','muted','每次更新都会在这里记录版本号和更新时间。'));
   if(!VER_OPEN)return c;
   VERSIONS.forEach(function(ver,i){
     var d=el('div','sect','v'+ver.v+'　'+ver.d+'　'+ver.t);
@@ -2659,6 +2704,7 @@ function versionCard(){
   });
   return c;
 }
+var MORE_OPEN=false;
 function renderMonth(){
   var f=document.createDocumentFragment();
   f.appendChild(historyCard());
@@ -2853,6 +2899,24 @@ function renderMonth(){
   f.appendChild(c5);
   f.appendChild(auditCard());
   f.appendChild(versionCard());
+  var _kids=Array.prototype.slice.call(f.childNodes);
+  if(_kids.length>6){
+    var _more=el('div');
+    _more.style.display=MORE_OPEN?'block':'none';
+    var _tog=el('div','card');
+    var _h=el('div','h');
+    _h.appendChild(el('b','','更多工具'));
+    _h.appendChild(el('span','tag','导出 / 导入 / 备份'));
+    var _b=el('button','mini',MORE_OPEN?'收起':'展开');
+    _b.style.marginLeft='auto';
+    _b.onclick=function(){MORE_OPEN=!MORE_OPEN;render();};
+    _h.appendChild(_b);
+    _tog.appendChild(_h);
+    _tog.appendChild(el('div','muted','Excel 导出、从电脑导入、备份恢复、账目体检、版本说明都在这里。'));
+    for(var _i=6;_i<_kids.length;_i++){_more.appendChild(_kids[_i]);}
+    f.appendChild(_tog);
+    f.appendChild(_more);
+  }
   return f;
 }
 
