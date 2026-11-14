@@ -197,6 +197,157 @@ nav button.on svg{stroke-width:2.1}
   padding:10px 12px;font-size:14px;font-weight:700;text-align:right}
 
 .ovin img{max-height:none;width:100%;height:auto}
+
+/* 电脑宽屏 */
+@media (min-width: 1000px){
+  body{background:#eef1f0}
+  header{padding:26px 32px 36px}
+  .hd b{font-size:24px}
+  main{max-width:1240px;padding:0 22px 40px;margin-top:-22px}
+  #view{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;grid-auto-flow:dense}
+  #view>*{margin-bottom:0}
+  .card{margin-bottom:0}
+  .kpi{gap:14px}
+  nav{position:static;max-width:600px;margin:20px auto 34px;border:1px solid var(--line);
+      border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+  nav button{padding:10px 0;font-size:12px}
+  .azbar{top:120px}
+  .toast{bottom:40px}
+}
+
+/* ---- 细节优化 ---- */
+html{scroll-behavior:smooth}
+.card{padding:15px}
+.h b{letter-spacing:.3px}
+.row{padding:10px 0}
+.nm b{line-height:1.35}
+.tag{letter-spacing:.3px}
+.btn{letter-spacing:.5px}
+input::placeholder{color:#b3bdb8}
+
+@media (max-width: 420px){
+  .card{padding:13px}
+  .q{width:54px}
+  .sbtn{width:32px}
+}
+
+/* 电脑端：更紧凑、更平衡 */
+@media (min-width: 1000px){
+  #view{grid-template-columns:1.08fr .92fr}
+  .calcell{height:32px}
+  .calgrid{gap:3px}
+  .cvtitle{font-size:18px}
+  .cover{max-width:560px}
+  .banner{padding:9px 12px;font-size:11.5px}
+  .kpi{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .kpi b{font-size:17px}
+  table{font-size:12.5px}
+  main table th,main table td{padding:8px 4px}
+}
+
+/* 电脑：今日页 = 左边主操作区 + 右边日历侧栏 */
+@media (min-width: 1000px){
+  #view{grid-template-columns:minmax(0,1fr) 350px;column-gap:16px;row-gap:14px;align-items:start}
+  #view>*{grid-column:1}
+  #view>.sec-cal{grid-column:2;grid-row:1 / span 3;position:sticky;top:18px}
+  #view>.sec-banner{grid-column:1;grid-row:1}
+  #view>.sec-meal{grid-column:1}
+  #view>.sec-forecast{grid-column:1}
+  #view>.sec-slip{grid-column:1}
+  .calcell{height:34px}
+}
+
+/* 电脑：居中单栏（最稳） */
+@media (min-width: 1000px){
+  body{background:#eef1f0}
+  main{max-width:980px;margin:18px auto 0;padding:0 20px 24px}
+  #view{display:block}
+  #view>*{margin-bottom:14px}
+  #view>.sec-cal{position:static}
+  .calcell{height:38px}
+  nav{position:sticky;bottom:14px;max-width:620px;margin:16px auto 22px;border-radius:16px}
+  .card{margin-bottom:0}
+}
+
+@media (min-width: 1000px){
+  #view>.sec-cal{max-width:620px;margin-left:auto;margin-right:auto}
+  #view>.sec-cal .calcell{height:40px;font-size:14.5px}
+  .banner{max-width:980px;margin-left:auto;margin-right:auto}
+}
+
+/* 电脑：左侧固定功能栏 */
+@media (min-width: 1000px){
+  body{padding-left:200px;background:#eef1f0}
+  header{padding:24px 30px 28px}
+  nav{position:fixed;left:0;top:0;bottom:0;width:200px;height:100vh;max-width:none;
+      margin:0;padding:22px 12px;display:flex;flex-direction:column;justify-content:flex-start;
+      gap:4px;background:#fff;border:0;border-right:1px solid var(--line);border-radius:0;
+      box-shadow:none;z-index:40;overflow:auto}
+  nav button{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:12px;padding:12px 14px;
+             border-radius:12px;font-size:14px}
+  nav button.on{background:var(--brand-soft);color:var(--brand)}
+  nav button svg{width:20px;height:20px}
+  main{max-width:1080px;margin:16px auto 0;padding:0 24px 30px}
+  .toast{bottom:30px;left:calc(50% + 100px)}
+}
+
+/* ===== 电脑端重设计：白顶栏 + 左侧栏 ===== */
+@media (min-width: 1000px){
+  body{background:#f6f7f8;padding-left:212px}
+  header{background:#fff;color:var(--tx);border-radius:0;border-bottom:1px solid #e9edeb;
+    padding:0 26px;height:62px;display:flex;align-items:center;position:sticky;top:0;z-index:30}
+  header:after{display:none}
+  .hd{display:flex;align-items:baseline;gap:10px;flex:1}
+  .hd b{color:#111a16;font-size:16px;font-weight:700;letter-spacing:.2px}
+  .hd span{color:#93a09a;font-size:12px}
+  .chips{margin:0;gap:8px}
+  .chip{background:#eaf3ef;border:0;color:#2f6b5c;padding:6px 11px;border-radius:9px;font-size:12px}
+  .chip b{color:#12634c;font-size:14px;font-weight:700}
+
+  nav{width:212px;padding:0;background:#fff;border-right:1px solid #e9edeb;
+    display:flex;flex-direction:column;gap:2px;justify-content:flex-start}
+  nav:before{content:'食堂出库';display:block;font-size:12px;color:#b3bdb8;letter-spacing:2px;
+    padding:22px 22px 12px;font-weight:600}
+  nav button{padding:11px 18px;border-radius:0;font-size:14px;color:#5c6b64;gap:11px;
+    border-left:3px solid transparent}
+  nav button.on{background:#f2f8f5;color:#12634c;font-weight:600;border-left-color:#1a7f63}
+  nav button:hover{background:#f7faf9}
+  nav button svg{width:19px;height:19px;opacity:.85}
+
+  main{max-width:1050px;margin:20px auto 0;padding:0 24px 36px}
+  .card{border:1px solid #e9edeb;box-shadow:none;border-radius:14px;padding:16px}
+  .card:hover{border-color:#dbe4e0}
+  .kpi>div{box-shadow:none;border:1px solid #e9edeb}
+  .calcell{height:38px;font-size:14px}
+  .calcell:hover{background:#f2f8f5}
+  .cover{max-width:600px;margin-left:auto;margin-right:auto}
+}
+
+@media (min-width: 1000px){
+  #view>.card:first-child{max-width:640px;margin-left:auto;margin-right:auto;margin-bottom:14px}
+  #view>.card:first-child .calcell{height:40px}
+}
+
+/* 电脑：今日 = 左边工作区 + 右边日历/预测 */
+@media (min-width: 1000px){
+  #view{display:grid;grid-template-columns:minmax(0,1fr) 342px;column-gap:16px;row-gap:14px;align-items:start}
+  #view>*{grid-column:1;margin-bottom:0}
+  #view>.sec-banner{grid-column:1;grid-row:1}
+  #view>.sec-meal{grid-column:1}
+  #view>.sec-slip{grid-column:1}
+  #view>.sec-cal{grid-column:2;grid-row:1;position:sticky;top:76px;max-width:none;margin:0}
+  #view>.sec-forecast{grid-column:2;grid-row:2;position:sticky;top:auto}
+  #view>.card:first-child{max-width:none;margin:0}
+  .calcell{height:34px}
+}
+
+/* 回到稳定单栏（覆盖上一条双栏实验） */
+@media (min-width: 1000px){
+  #view{display:block}
+  #view>*{grid-column:auto;margin-bottom:14px}
+  #view>.sec-cal{position:static;max-width:640px;margin:0 auto 14px}
+  #view>.sec-forecast{position:static}
+}
 </style>
 </head>
 <body>
@@ -734,7 +885,7 @@ function openIngPanel(meal,o){
 
 /* ---------------- 日历 ---------------- */
 function calCard(){
-  var card=el('div','card');
+  var card=el('div','card sec-cal');
   var d=new Date(viewDate+'T00:00:00');
   var y=d.getFullYear(), m=d.getMonth();
   var head=el('div','calhead');
@@ -795,7 +946,7 @@ function forecast(){
 }
 function forecastCard(){
   var fc=forecast();
-  var card=el('div','card');
+  var card=el('div','card sec-forecast');
   var h=el('div','h');
   h.appendChild(el('b','','未来预计'));
   h.appendChild(el('span','tag','到'+DAYC[(fc.end.getDay()+6)%7]+'来菜'));
@@ -835,14 +986,14 @@ function renderToday(){
   f.appendChild(calCard());
 
   if(S.negCount){
-    f.appendChild(el('div','banner','11 月只录了 '+S.inLog.length+' 笔入库，有 '+S.negCount+' 样只出不进，所以结存是负的。到「库存」里点任意一行，直接填实际盘点数就能校正。'));
+    f.appendChild(el('div','banner sec-banner','11 月只录了 '+S.inLog.length+' 笔入库，有 '+S.negCount+' 样只出不进，所以结存是负的。到「库存」里点任意一行，直接填实际盘点数就能校正。'));
   }
 
   var wk=isWeekend(wd);
   var ML=wk?[['早/晚','早、中、晚']]:[['午','营养午餐'],['早/晚','早、晚餐']];
   ML.forEach(function(mk){
     var meal=mk[0];
-    var card=el('div','card');
+    var card=el('div','card sec-meal');
     var h=el('div','h');
     h.appendChild(el('b','',mk[1]));
     h.appendChild(el('span','tag'+(meal==='午'?' nut':''),meal==='午'?'午餐':(wk?'周末不分开':'早餐＋晚餐')));
@@ -953,7 +1104,7 @@ function renderToday(){
   });
   f.appendChild(forecastCard());
 
-  var c3=el('div','card');
+  var c3=el('div','card sec-slip');
   c3.appendChild(el('div','h')).appendChild(el('b','','今日单据'));
   var g=el('div','f2');
   if(isWeekend(wdOf(viewDate))){
@@ -1074,7 +1225,7 @@ function renderStock(){
 var inCat='粮食';
 function renderIn(){
   var f=document.createDocumentFragment();
-  var card=el('div','card');
+  var card=el('div','card sec-forecast');
   card.appendChild(el('div','h')).appendChild(el('b','','来货入库'));
   var seg=el('div','seg segwrap');
   CATS.forEach(function(c){
