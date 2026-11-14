@@ -366,6 +366,25 @@ input::placeholder{color:#b3bdb8}
 .verrow .verd{color:#9ad9bd;font-weight:700;line-height:1.5}
 .verrow .vertx{font-size:12.5px;color:#5c6b64;line-height:1.65}
 
+/* 顶部状态条：更轻更小 */
+.chips{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:nowrap}
+.chip.sm{padding:5px 10px;font-size:11.5px;border-radius:20px;font-weight:600}
+.chip.sm b{font-size:13px}
+.syncline{font-size:11px;opacity:.72;margin-left:auto;white-space:nowrap;letter-spacing:.2px}
+.undoico{width:30px;height:30px;min-width:30px;border-radius:50%;background:rgba(255,255,255,.16);
+  color:#fff;border:0;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;padding:0}
+.undoico:active{background:rgba(255,255,255,.28)}
+@media (max-width:380px){.syncline{display:none}}
+
+/* 底部导航固定 */
+body{padding-bottom:74px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:60}
+@media (min-width:1000px){
+  body{padding-bottom:0}
+  nav{position:fixed;left:0;top:0;bottom:0;right:auto;width:212px}
+}
+
 /* ===== 新版：两栏工作台，极简风格 ===== */
 .layout2{display:block}
 @media (min-width: 1000px){
@@ -454,46 +473,6 @@ main{padding-bottom:40px}
   }
 
 }
-
-/* ===== 设计稿风格覆盖：校园食堂 · 温暖纸感 ===== */
-body{background:#faf7f1}
-body:after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55;
-  background-image:radial-gradient(rgba(160,140,100,.10) 1px,transparent 1px);background-size:5px 5px}
-header,main,nav{position:relative;z-index:1}
-header{background:linear-gradient(160deg,#2a6a4d,#1f4d3a 62%);border-radius:0 0 26px 26px}
-.card{background:#fff;border:1px solid rgba(210,200,180,.42);border-radius:18px;
-  box-shadow:0 4px 14px rgba(70,58,36,.07)}
-.card:hover{border-color:rgba(210,200,180,.7)}
-.kpi>div{background:#fff;border:1px solid rgba(210,200,180,.42);border-radius:16px;
-  box-shadow:0 4px 14px rgba(70,58,36,.06)}
-.kpi b{font-weight:800;letter-spacing:-.4px}
-.chip{background:#fff;border:1px solid rgba(210,200,180,.55);color:#5d6b64}
-.tag{background:#e8f1eb;color:#2f6b4f;border-radius:20px;font-weight:600}
-.tag.warn{background:#fbe9e6;color:#d75a4a}
-.btn{border-radius:14px}
-.btn.main{background:linear-gradient(160deg,#2f6b4f,#1f4d3a);
-  box-shadow:0 8px 18px rgba(31,77,58,.22)}
-.btn.ghost{background:#fff;border:1.5px solid #e3e0d6;color:#2f6b4f}
-.seg button{border-radius:20px;border:1.5px solid #e9e5da;background:#fff}
-.seg button.on{background:#2f6b4f;color:#fff;border-color:#2f6b4f}
-.h b:before{background:#9ad9bd}
-.banner{background:#fdf0e0;color:#a86a24;border-radius:14px}
-input,select,textarea{border-radius:12px;border:1.5px solid #e9e5da;background:#fff}
-input:focus,select:focus,textarea:focus{border-color:#2f6b4f;outline:none}
-.sect{background:#e8f1eb;color:#2f6b4f;border-radius:12px}
-.azbar button{background:#fff;border:1px solid #ece7db}
-.azbar button.on{background:#2f6b4f;color:#fff;border-color:#2f6b4f}
-.row{border-bottom:1px dashed #f0eee7}
-nav{background:#fff;border-top:1px solid #e9e5da}
-nav button{color:#9aa7a0}
-nav button.on{color:#2f6b4f}
-@media (min-width:1000px){
-  body{background:#f4efe6;padding-left:212px}
-  nav{background:#fff;border-right:1px solid #e9e5da}
-  nav button.on{background:#e8f1eb;color:#1f4d3a}
-}
-/* 数字强调 */
-.kpi b,.row .v,b{letter-spacing:-.2px}
 </style>
 </head>
 <body>
@@ -1010,14 +989,13 @@ function render(){
   clr($('chips'));
   var c1=el('div','chip');c1.appendChild(el('b','',String(n0)));c1.appendChild(document.createTextNode('样待出'));
   var c2=el('div','chip');c2.appendChild(el('b','','¥'+fmt(a0,0)));c2.appendChild(document.createTextNode('预计金额'));
+  c1.className='chip sm';c2.className='chip sm';
   $('chips').appendChild(c1);$('chips').appendChild(c2);
-  var sc=el('div','chip');sc.id='synchip';sc.textContent=(typeof SYNC_LABEL!=='undefined')?SYNC_LABEL:'本地';
+  var sc=el('span','syncline');sc.id='synchip';
+  sc.textContent=(typeof SYNC_LABEL!=='undefined')?SYNC_LABEL:'本地';
   $('chips').appendChild(sc);
-  var verChip=el('div','chip','v'+(typeof APP_VER!=='undefined'?APP_VER:''));
-  verChip.style.opacity='.8';
-  $('chips').appendChild(verChip);
-  var undoBtn=el('button','chip','↶ 撤销');undoBtn.id='undochip';
-  undoBtn.style.cursor='pointer';undoBtn.onclick=function(){undoLast();};
+  var undoBtn=el('button','undoico','↶');undoBtn.id='undochip';undoBtn.title='撤销（最多 25 步）';
+  undoBtn.onclick=function(){undoLast();};
   $('chips').appendChild(undoBtn);
   lastRenderTab=tab;
   if(typeof window!=='undefined')window.scrollTo(0,sameTab?sy:0);
@@ -1179,9 +1157,29 @@ function forecastCard(){
 }
 
 /* ---------------- 今日 ---------------- */
+
+function mealMissing(){
+  var d=viewDate,w=wdOf(d),weekend=isWeekend(w);
+  var meals=weekend?['早/晚']:['午','早/晚'];
+  var miss=[];
+  meals.forEach(function(m){
+    var has=S.outLog.some(function(o){return o.d===d&&o.t===m;});
+    if(!has)miss.push(m==='午'?'营养午餐':'早、晚餐');
+  });
+  return miss;
+}
+function missBanner(){
+  var miss=mealMissing();
+  if(!miss.length)return null;
+  var b=el('div','banner');
+  b.style.background='#fbe9e6';b.style.color='#b2432f';
+  b.appendChild(el('div','','今天还没出库：'+miss.join('、')+'　往下滑去出库'));
+  return b;
+}
 function renderToday(){
   var f=document.createDocumentFragment();
   var wd=wdOf(viewDate);
+  var _mb=missBanner();if(_mb)f.appendChild(_mb);
   var _bb=backupBanner();if(_bb)f.appendChild(_bb);
   f.appendChild(calCard());
 
@@ -2283,8 +2281,59 @@ function ledgerRows(){
   rows.sort(function(a,b){return a.d<b.d?-1:(a.d>b.d?1:0);});
   return rows;
 }
-function ledgerSheet(){
+
+var lgMode='cat';
+function itemLedger(){
   var c=el('div','card');
+  var seg=el('div','seg');
+  [['cat','按类别'],['item','按食材']].forEach(function(m){
+    var b=el('button',lgMode===m[0]?'on':'',m[1]);
+    b.onclick=function(){lgMode=m[0];render();};
+    seg.appendChild(b);
+  });
+  c.appendChild(seg);
+  var agg={},tot=0;
+  S.outLog.forEach(function(o){
+    if((lgMeal==='午餐')!==(o.t==='午'))return;
+    var k=o.n;
+    if(!agg[k])agg[k]={q:0,a:0};
+    agg[k].q+=o.q;agg[k].a+=o.q*o.p;tot+=o.q*o.p;
+  });
+  var ks=Object.keys(agg).sort(function(a,b){return agg[b].a-agg[a].a;});
+  var tb=el('table');tb.style.fontSize='12px';
+  var hr=el('tr');['名称','单位','数量','金额'].forEach(function(h){hr.appendChild(el('th','',h));});
+  tb.appendChild(hr);
+  ks.forEach(function(n){
+    var tr=el('tr');
+    tr.appendChild(el('td','',n));
+    tr.appendChild(el('td','',unitOf(n)));
+    var t1=el('td','',fmt(agg[n].q));t1.style.textAlign='right';tr.appendChild(t1);
+    var t2=el('td','','¥'+yen(agg[n].a));t2.style.textAlign='right';t2.style.fontWeight='600';tr.appendChild(t2);
+    tb.appendChild(tr);
+  });
+  c.appendChild(tb);
+  var sum=el('div','lgsum');
+  sum.textContent='合计　'+ks.length+' 种　¥'+yen(tot);
+  c.appendChild(sum);
+  var cp=el('button','btn ghost','复制这张表（可粘到 Excel）');
+  cp.style.marginTop='10px';
+  cp.onclick=function(){
+    var L=['名称	单位	数量	金额'];
+    ks.forEach(function(n){L.push([n,unitOf(n),fmt(agg[n].q),yen(agg[n].a)].join('	'));});
+    L.push(['合计','','','¥'+yen(tot)].join('	'));
+    var txt=L.join(String.fromCharCode(10));
+    if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){toast('已复制');});
+    else toast('请长按复制');
+  };
+  c.appendChild(cp);
+  return c;
+}
+function ledgerSheet(){
+  if(lgMode==='item')return itemLedger();
+  var c=el('div','card');
+  var mseg=el('div','seg');
+  [['cat','按类别'],['item','按食材']].forEach(function(m){var b=el('button',lgMode===m[0]?'on':'',m[1]);b.onclick=function(){lgMode=m[0];render();};mseg.appendChild(b);});
+  c.appendChild(mseg);
   var seg=el('div','seg segwrap');
   LCATS.forEach(function(g){
     var b=el('button',g===lgCat?'on':'',g);
