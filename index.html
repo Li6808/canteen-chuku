@@ -406,6 +406,31 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:60}
   .calcell{height:34px}
 }
 
+/* 日历：表头与日期行贴紧 */
+.calgrid{row-gap:1px;column-gap:3px}
+.calwd{height:18px;line-height:18px;padding:0;margin-bottom:2px;font-size:11px;
+  display:flex;align-items:center;justify-content:center}
+.calcell{height:28px;margin:0}
+.sec-cal{padding:12px 10px 8px}
+.calhead{margin-bottom:4px}
+.callegend{margin-top:6px}
+@media (min-width:1000px){
+  .calcell{height:32px}
+  .calgrid{row-gap:2px;column-gap:5px}
+  .calwd{height:20px;line-height:20px;margin-bottom:3px}
+}
+
+/* 日历：统一行高，表头下不留空 */
+.calgrid{grid-auto-rows:26px;row-gap:2px}
+.calwd{height:26px;margin:0}
+.calcell{height:26px !important;font-size:13px;position:relative}
+.calcell .d{bottom:2px;width:3.5px;height:3.5px}
+@media (min-width:1000px){
+  .calgrid{grid-auto-rows:30px}
+  .calwd{height:30px}
+  .calcell{height:30px !important}
+}
+
 /* ===== 新版：两栏工作台，极简风格 ===== */
 .layout2{display:block}
 @media (min-width: 1000px){
@@ -2637,7 +2662,7 @@ function auditCard(){
 /* ---------------- 版本与更新说明 ---------------- */
 var APP_VER='1.1.1';
 var APP_VER_DATE='2026-11-15 03:25';
-var APP_BUILD='2026-11-15 03:24';
+var APP_BUILD='2026-11-15 13:21';
 var VERSIONS=[
  {v:'1.1.1',d:'2026-11-15 03:22',t:'修正',items:[
    '日历表头与日期列对齐：表头日期同一列宽，列间距统一 4px',
